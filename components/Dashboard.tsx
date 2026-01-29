@@ -1,12 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  AreaChart, Area, ComposedChart, Cell
-} from 'recharts';
 import { Product, KPIData, PageView, ReservedItem, UserRole } from '../types';
 import { 
-  Package, TrendingUp, Download, Eye, ShieldCheck, Clock, ArrowRight, 
+  Package, TrendingUp, ShieldCheck, Clock, ArrowRight, 
   BarChart3, PlusCircle, Zap, Activity, Calendar as CalendarIcon, FileText,
   AlertTriangle, ClipboardList, Lock, Edit2, Trash2, X, Save, User, Bell
 } from 'lucide-react';
@@ -24,7 +20,7 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ 
-  products, kpiData, handleGenerateReport, navigate, 
+  products, kpiData, navigate, 
   reservedItems = [], setReservedItems, role, requestAuth 
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -194,78 +190,50 @@ export const Dashboard: React.FC<DashboardProps> = ({
         ))}
       </div>
 
-      {/* Dynamic Analytics & Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <motion.div variants={itemVariants} className="lg:col-span-2 bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-royal-50 rounded-bl-full -mr-10 -mt-10 opacity-50"></div>
-          <div className="flex justify-between items-end mb-12 relative z-10">
-            <div>
-              <h3 className="text-2xl font-black text-slate-900">مؤشرات الجودة والإنتاج</h3>
-              <p className="text-gray-400 text-sm mt-1 font-bold">تحليل مقارن لمعدلات الكفاءة عبر الشهور</p>
+      {/* Redesigned Quick Actions Section (Full Width Layout) */}
+      <motion.div variants={itemVariants} className="bg-slate-900 p-10 rounded-[3rem] text-white shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+          
+          <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-center lg:items-stretch">
+            <div className="lg:w-1/3 flex flex-col justify-center">
+              <h3 className="text-3xl font-black mb-4">اختصارات النظام</h3>
+              <p className="text-slate-400 font-medium leading-relaxed mb-8">
+                انتقل بسرعة إلى الأقسام المختلفة لإدارة الجودة والإنتاج والتوثيق الفني.
+              </p>
+              <div className="p-6 bg-royal-800 rounded-[1.5rem] relative overflow-hidden group cursor-pointer" onClick={() => navigate('database')}>
+                  <ShieldCheck className="absolute -bottom-4 -left-4 w-24 h-24 text-white/10 group-hover:scale-110 transition-transform" />
+                  <h4 className="font-black mb-2 flex items-center gap-2">نظام الحماية المشفر</h4>
+                  <p className="text-[11px] text-royal-200 font-bold leading-relaxed opacity-80">
+                    كافة بياناتك مخزنة محلياً باستخدام تقنية IndexedDB المشفرة لضمان أقصى درجات الخصوصية.
+                  </p>
+              </div>
             </div>
-            <div className="flex gap-4">
-               <div className="flex items-center gap-2 px-4 py-2 bg-royal-50 text-royal-700 rounded-2xl text-xs font-black">
-                 <div className="w-2.5 h-2.5 rounded-full bg-royal-600"></div> معدل الجودة
-               </div>
-               <div className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-700 rounded-2xl text-xs font-black">
-                 <div className="w-2.5 h-2.5 rounded-full bg-rose-600"></div> كمية العيوب
-               </div>
-            </div>
-          </div>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={kpiData}>
-                <CartesianGrid strokeDasharray="5 5" stroke="#f1f5f9" vertical={false} />
-                <XAxis dataKey="month" stroke="#94a3b8" tick={{fontSize: 12, fontWeight: 900}} tickLine={false} axisLine={false} reversed={true} />
-                <YAxis yAxisId="left" stroke="#94a3b8" tick={{fontSize: 12, fontWeight: 900}} tickLine={false} axisLine={false} orientation="right" />
-                <Tooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '24px', border: 'none', color: '#fff', textAlign: 'right', fontWeight: 'bold' }}
-                />
-                <Area yAxisId="left" type="monotone" dataKey="qualityRate" name="معدل الجودة" fill="#eff6ff" stroke="#1d4ed8" strokeWidth={5} />
-                <Bar yAxisId="left" dataKey="defects" name="العيوب" fill="#f43f5e" radius={[10, 10, 0, 0]} barSize={25}>
-                   {kpiData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.defects > 50 ? '#be123c' : '#fb7185'} />
-                   ))}
-                </Bar>
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
 
-        <motion.div variants={itemVariants} className="bg-slate-900 p-10 rounded-[3rem] text-white shadow-2xl relative overflow-hidden flex flex-col">
-            <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-            <h3 className="text-2xl font-black mb-8 relative z-10">إجراءات سريعة</h3>
-            <div className="space-y-4 relative z-10 flex-1">
+            <div className="lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
               {[
-                { label: 'إدارة المنتجات', icon: Package, view: 'products', color: 'text-blue-400' },
-                { label: 'الأرشيف الفني', icon: FileText, view: 'documents', color: 'text-amber-400' },
-                { label: 'تحليل الأداء', icon: Activity, view: 'kpi', color: 'text-emerald-400' },
-                { label: 'الأجهزة والمعايرة', icon: Zap, view: 'lab-equipment', color: 'text-purple-400' },
+                { label: 'إدارة المنتجات', icon: Package, view: 'products', color: 'text-blue-400', desc: 'مواصفات وعيوب المنتجات' },
+                { label: 'الأرشيف الفني', icon: FileText, view: 'documents', color: 'text-amber-400', desc: 'مخزن الوثائق والتقارير' },
+                { label: 'تحليل الأداء', icon: Activity, view: 'kpi', color: 'text-emerald-400', desc: 'مؤشرات الكفاءة الشهرية' },
+                { label: 'الأجهزة والمعايرة', icon: Zap, view: 'lab-equipment', color: 'text-purple-400', desc: 'سجلات SOP والمعايرة' },
               ].map((action, i) => (
                 <button 
                   key={i}
                   onClick={() => navigate(action.view as PageView)}
-                  className="w-full flex items-center justify-between p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[1.5rem] transition-all group"
+                  className="w-full flex flex-col p-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[2rem] transition-all group text-right"
                 >
-                  <div className="flex items-center gap-5">
-                    <div className={`p-3 rounded-2xl bg-white/5 ${action.color} group-hover:scale-110 transition-transform`}>
-                      <action.icon className="w-6 h-6" />
+                  <div className="flex justify-between items-start mb-4">
+                    <div className={`p-4 rounded-2xl bg-white/5 ${action.color} group-hover:scale-110 transition-transform shadow-lg`}>
+                      <action.icon className="w-7 h-7" />
                     </div>
-                    <span className="font-black text-lg">{action.label}</span>
+                    <ArrowRight className="w-5 h-5 text-white/20 group-hover:text-white group-hover:-translate-x-1 transition-all" />
                   </div>
-                  <ArrowRight className="w-5 h-5 text-white/20 group-hover:text-white group-hover:-translate-x-1 transition-all" />
+                  <span className="font-black text-xl mb-1">{action.label}</span>
+                  <span className="text-xs text-slate-400 font-medium">{action.desc}</span>
                 </button>
               ))}
             </div>
-            <div className="mt-8 p-6 bg-royal-800 rounded-[1.5rem] relative overflow-hidden group cursor-pointer" onClick={() => navigate('database')}>
-                <ShieldCheck className="absolute -bottom-4 -left-4 w-24 h-24 text-white/10 group-hover:scale-110 transition-transform" />
-                <h4 className="font-black mb-2 flex items-center gap-2">نظام الحماية المشفر</h4>
-                <p className="text-[11px] text-royal-200 font-bold leading-relaxed opacity-80">
-                  كافة بياناتك مخزنة محلياً باستخدام تقنية IndexedDB المشفرة لضمان أقصى درجات الخصوصية.
-                </p>
-            </div>
-        </motion.div>
-      </div>
+          </div>
+      </motion.div>
 
       {/* Reserved Area (Quarantine) Section */}
       <motion.div variants={itemVariants} className="bg-white rounded-[3rem] shadow-xl border border-rose-100 overflow-hidden relative group">
