@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { ChecklistEntry, UserRole } from '../types';
-import { Calendar, CheckSquare, AlertCircle, Settings2, Plus, Trash2, X, FileSpreadsheet, User, CheckCircle2 } from 'lucide-react';
+import { ChecklistEntry, UserRole, TopLoadStandard } from '../types';
+import { Calendar, CheckSquare, AlertCircle, Settings2, Plus, Trash2, X, FileSpreadsheet, User, CheckCircle2, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ChecklistProps {
@@ -9,6 +9,9 @@ interface ChecklistProps {
   setEntries: React.Dispatch<React.SetStateAction<ChecklistEntry[]>>;
   machines: string[];
   setMachines: React.Dispatch<React.SetStateAction<string[]>>;
+  standards: TopLoadStandard[];
+  machineProducts: Record<string, Record<string, Record<string, string>>>;
+  setMachineProducts: React.Dispatch<React.SetStateAction<Record<string, Record<string, Record<string, string>>>>>;
   requestAuth: (action: () => void) => void;
   role: UserRole | null;
   shiftNames: Record<string, {A: string, B: string, C: string}>;
@@ -52,7 +55,9 @@ const TIME_SLOTS = [
   '08:00 م', '10:00 م', '12:00 ص', '02:00 ص', '04:00 ص', '06:00 ص'
 ];
 
-export const Checklist: React.FC<ChecklistProps> = ({ entries, setEntries, machines, setMachines, requestAuth, role, shiftNames, setShiftNames }) => {
+export const Checklist: React.FC<ChecklistProps> = ({ 
+  entries, setEntries, machines, setMachines, standards, machineProducts, setMachineProducts, requestAuth, role, shiftNames, setShiftNames 
+}) => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedShift, setSelectedShift] = useState<'A' | 'B' | 'C'>('A');
 
@@ -69,6 +74,23 @@ export const Checklist: React.FC<ChecklistProps> = ({ entries, setEntries, machi
               [shift]: name
           }
       }));
+  };
+
+  const handleMachineProductChange = (machineId: string, productName: string) => {
+      setMachineProducts(prev => ({
+          ...prev,
+          [selectedDate]: {
+              ...(prev[selectedDate] || { A: {}, B: {}, C: {} }),
+              [selectedShift]: {
+                  ...(prev[selectedDate]?.[selectedShift] || {}),
+                  [machineId]: productName
+              }
+          }
+      }));
+  };
+
+  const getMachineProduct = (machineId: string) => {
+      return machineProducts[selectedDate]?.[selectedShift]?.[machineId] || '';
   };
 
   const getEntry = (machineId: string, timeSlot: string) => {
@@ -114,10 +136,11 @@ export const Checklist: React.FC<ChecklistProps> = ({ entries, setEntries, machi
   };
 
   const handleExportCSV = () => {
-    const headers = ['الماكينة', ...TIME_SLOTS];
+    const headers = ['الماكينة', 'اسم المنتج', ...TIME_SLOTS];
     
     const rows = machines.map(machine => {
-      const rowData = [machine];
+      const productName = getMachineProduct(machine);
+      const rowData = [machine, productName];
       TIME_SLOTS.forEach(time => {
          const entry = getEntry(machine, time);
          rowData.push(entry?.status || '-');
@@ -196,7 +219,7 @@ export const Checklist: React.FC<ChecklistProps> = ({ entries, setEntries, machi
         </div>
       </div>
 
-      {/* REFINED: Shift Selector Boxes */}
+      {/* Shift Selector Boxes */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 no-print">
           {[
               { id: 'A', label: 'الوردية الأولى' },
@@ -270,32 +293,55 @@ export const Checklist: React.FC<ChecklistProps> = ({ entries, setEntries, machi
           </div>
       </div>
 
-      {/* Main Inspection Grid */}
-      <div className="bg-white rounded-[1.5rem] shadow-md border border-gray-200 overflow-hidden print:shadow-none print:border print:rounded-none">
+      {/* Main Inspection Grid - EXACT MATCH TO TOPLOAD STYLE AND WIDER WIDTH */}
+      <div className="bg-white rounded-[2rem] shadow-xl border border-gray-200 overflow-hidden print:shadow-none print:border print:rounded-none">
          <div className="overflow-x-auto">
-             <table className="w-full text-center border-collapse">
+             <table className="w-full text-center border-separate border-spacing-0">
                  <thead>
                      <tr className="bg-royal-900 text-white text-sm print:bg-gray-800 print:text-black print:text-xs">
-                         <th className="p-4 font-black border-l border-royal-800 w-24 print:p-2 print:border-gray-300">الماكينة</th>
+                         <th className="p-4 font-black border-l border-royal-800 w-24 print:p-2 print:border-gray-300">
+                            الماكينة
+                         </th>
+                         {/* Expanded Product Name Column to match Top Load layout space */}
+                         <th className="p-4 font-black border-l border-royal-800 min-w-[320px] w-80 print:p-2 print:border-gray-300">
+                            اسم المنتج
+                         </th>
                          {TIME_SLOTS.map((time) => (
-                             <th key={time} className="p-3 font-bold border-l border-royal-800 min-w-[80px] print:p-1 print:border-gray-300 print:text-[10px]">{time}</th>
+                             <th key={time} className="p-3 font-bold border-l border-royal-800 min-w-[100px] print:p-1 print:border-gray-300 print:text-[10px]">{time}</th>
                          ))}
                      </tr>
                  </thead>
                  <tbody className="text-sm font-bold text-gray-700">
                      {machines.map((machine) => (
-                         <tr key={machine} className="hover:bg-gray-50 border-b border-gray-100 last:border-0 print:border-gray-300">
-                             <td className="p-3 bg-gray-50 font-black border-l border-gray-200 text-royal-800 text-base print:bg-gray-100 print:border-gray-300 print:text-sm print:p-1">{machine}</td>
+                         <tr key={machine} className="hover:bg-gray-50 border-b border-gray-100 last:border-0 print:border-gray-300 group">
+                             <td className="p-3 bg-gray-50 font-black border-l border-gray-200 text-royal-800 text-base print:bg-gray-100 print:border-gray-300 print:text-sm print:p-1 group-hover:bg-white transition-colors">
+                                {machine}
+                             </td>
+                             <td className="p-1 border-l border-gray-100 print:border-gray-300 min-w-[320px]">
+                                 <div className="relative">
+                                     <Package className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 no-print" />
+                                     <input 
+                                        type="text" 
+                                        value={getMachineProduct(machine)}
+                                        onChange={(e) => handleMachineProductChange(machine, e.target.value)}
+                                        className="w-full px-8 py-2 text-center outline-none bg-transparent hover:bg-white focus:bg-white transition-all rounded-md font-bold text-gray-800 placeholder:font-normal placeholder:text-gray-300"
+                                        placeholder="اكتب اسم المنتج..."
+                                        list="product-standards-checklist-final"
+                                        autoComplete="off"
+                                     />
+                                 </div>
+                             </td>
+                             {/* Time Slots Inputs */}
                              {TIME_SLOTS.map((time) => {
                                  const entry = getEntry(machine, time);
                                  return (
-                                     <td key={time} className="p-1 border-l border-gray-100 h-14 relative group print:h-8 print:border-gray-300 print:p-0">
+                                     <td key={time} className="p-1 border-l border-gray-100 h-16 relative group print:h-8 print:border-gray-300 print:p-0">
                                          <input 
                                             type="text" 
                                             maxLength={4}
                                             value={entry?.status || ''}
                                             onChange={(e) => handleCellChange(machine, time, e.target.value)}
-                                            className={`w-full h-full text-center outline-none transition-all uppercase rounded-md focus:ring-2 focus:ring-inset focus:ring-royal-500 ${getCellColor(entry?.status)} print:rounded-none print:text-xs`}
+                                            className={`w-full h-full text-center outline-none transition-all uppercase rounded-lg focus:ring-4 focus:ring-royal-500/10 border border-transparent focus:border-royal-400 font-mono ${getCellColor(entry?.status)} print:rounded-none print:text-xs text-base`}
                                             placeholder="-"
                                          />
                                      </td>
@@ -307,6 +353,11 @@ export const Checklist: React.FC<ChecklistProps> = ({ entries, setEntries, machi
              </table>
          </div>
       </div>
+      
+      {/* Global Datalist for Product Names */}
+      <datalist id="product-standards-checklist-final">
+            {standards.map(s => <option key={s.id} value={s.name} />)}
+      </datalist>
 
       {/* Machine Management Modal */}
       <AnimatePresence>
@@ -346,7 +397,7 @@ export const Checklist: React.FC<ChecklistProps> = ({ entries, setEntries, machi
                            </button>
                        </form>
 
-                       <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                       <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2 text-right">
                            {machines.map((machine) => (
                                <div key={machine} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
                                    <span className="font-black text-gray-700">{machine}</span>
@@ -370,7 +421,7 @@ export const Checklist: React.FC<ChecklistProps> = ({ entries, setEntries, machi
       </AnimatePresence>
 
       <div className="text-center text-xs text-gray-400 font-bold mt-4 no-print">
-         يتم حفظ البيانات تلقائياً. اختر البطاقة العلوية لتفعيل الوردية وإدخال اسم المسؤول.
+         يتم حفظ البيانات تلقائياً. العمود الواسع يتيح لك رؤية اسم المنتج بوضوح تام.
       </div>
     </div>
   );

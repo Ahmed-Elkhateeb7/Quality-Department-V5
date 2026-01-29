@@ -23,18 +23,9 @@ const TopLoad = React.lazy(() => import('./components/TopLoad').then(module => (
 const WeightCheck = React.lazy(() => import('./components/WeightCheck').then(module => ({ default: module.WeightCheck })));
 
 const INITIAL_COMPANY_SETTINGS: CompanySettings = {
-  name: '',
-  slogan: '',
-  address: '',
-  logo: '',
-  email: '',
-  phone: '',
-  website: '',
-  registrationNumber: '',
-  certificates: ''
+  name: '', slogan: '', address: '', logo: '', email: '', phone: '', website: '', registrationNumber: '', certificates: ''
 };
 
-// Updated Machine List as requested
 const DEFAULT_MACHINES = [
   'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 
   'P10', 'P11', 'P13', 'FKI 5', 'FKI 6', 'FKI 7', 'FKI 8', 
@@ -68,16 +59,11 @@ const DEFAULT_TOP_LOAD_STANDARDS: TopLoadStandard[] = [
   { id: '24', name: 'كمف 3', val: 45, color: 'bg-orange-100 border-orange-200' },
 ];
 
-localforage.config({
-  name: 'TQM_Pro_System',
-  storeName: 'quality_data'
-});
+localforage.config({ name: 'TQM_Pro_System', storeName: 'quality_data' });
 
 const LoadingFallback = () => (
   <div className="flex flex-col items-center justify-center h-[60vh] text-royal-600">
-    <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
-      <Loader2 className="w-12 h-12" />
-    </motion.div>
+    <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}><Loader2 className="w-12 h-12" /></motion.div>
     <p className="mt-4 font-bold text-gray-500 animate-pulse">جاري تحميل البيانات...</p>
   </div>
 );
@@ -108,40 +94,17 @@ function App() {
     const loadData = async () => {
       try {
         const [p, t, d, k, c, r, l, cl, cm, csn, tl, tls, tmp, we] = await Promise.all([
-          localforage.getItem<Product[]>('tqm_products'),
-          localforage.getItem<Employee[]>('tqm_team'),
-          localforage.getItem<DocumentFile[]>('tqm_documents'),
-          localforage.getItem<KPIData[]>('tqm_kpiData'),
-          localforage.getItem<CompanySettings>('tqm_company'),
-          localforage.getItem<ReservedItem[]>('tqm_reserved'),
-          localforage.getItem<LabDevice[]>('tqm_lab_equipment'),
-          localforage.getItem<ChecklistEntry[]>('tqm_checklist'),
-          localforage.getItem<string[]>('tqm_checklist_machines'),
-          localforage.getItem<Record<string, {A: string, B: string, C: string}>>('tqm_checklist_shift_names'),
-          localforage.getItem<TopLoadEntry[]>('tqm_top_load'),
-          localforage.getItem<TopLoadStandard[]>('tqm_top_load_standards'),
-          localforage.getItem<Record<string, Record<string, Record<string, string>>>>('tqm_top_load_machine_products'),
+          localforage.getItem<Product[]>('tqm_products'), localforage.getItem<Employee[]>('tqm_team'), localforage.getItem<DocumentFile[]>('tqm_documents'),
+          localforage.getItem<KPIData[]>('tqm_kpiData'), localforage.getItem<CompanySettings>('tqm_company'), localforage.getItem<ReservedItem[]>('tqm_reserved'),
+          localforage.getItem<LabDevice[]>('tqm_lab_equipment'), localforage.getItem<ChecklistEntry[]>('tqm_checklist'), localforage.getItem<string[]>('tqm_checklist_machines'),
+          localforage.getItem<Record<string, {A: string, B: string, C: string}>>('tqm_checklist_shift_names'), localforage.getItem<TopLoadEntry[]>('tqm_top_load'),
+          localforage.getItem<TopLoadStandard[]>('tqm_top_load_standards'), localforage.getItem<Record<string, Record<string, Record<string, string>>>>('tqm_top_load_machine_products'),
           localforage.getItem<WeightEntry[]>('tqm_weight_entries')
         ]);
-        if (p) setProducts(p);
-        if (t) setTeam(t);
-        if (d) setDocuments(d);
-        if (k) setKpiData(k);
-        if (c) setCompanySettings(c);
-        if (r) setReservedItems(r);
-        if (l) setLabEquipment(l);
-        if (cl) setChecklistEntries(cl);
-        if (cm) setChecklistMachines(cm);
-        if (csn) setChecklistShiftNames(csn);
-        if (tl) setTopLoadEntries(tl);
-        if (tls) setTopLoadStandards(tls);
-        if (tmp) setTopLoadMachineProducts(tmp);
-        if (we) setWeightEntries(we);
-      } catch (err) {
-        console.error("Storage Error:", err);
-      } finally {
-        setIsInitializing(false);
-      }
+        if (p) setProducts(p); if (t) setTeam(t); if (d) setDocuments(d); if (k) setKpiData(k); if (c) setCompanySettings(c); if (r) setReservedItems(r);
+        if (l) setLabEquipment(l); if (cl) setChecklistEntries(cl); if (cm) setChecklistMachines(cm); if (csn) setChecklistShiftNames(csn); if (tl) setTopLoadEntries(tl);
+        if (tls) setTopLoadStandards(tls); if (tmp) setTopLoadMachineProducts(tmp); if (we) setWeightEntries(we);
+      } catch (err) { console.error("Storage Error:", err); } finally { setIsInitializing(false); }
     };
     loadData();
   }, []);
@@ -166,17 +129,13 @@ function App() {
 
   const requestAuth = (action: () => void) => {
     if (userRole === 'admin') action();
-    else {
-      setPendingAction(() => action);
-      setIsAuthModalOpen(true);
-    }
+    else { setPendingAction(() => action); setIsAuthModalOpen(true); }
   };
 
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-royal-950 flex flex-col items-center justify-center text-white text-center" dir="rtl">
-        <Loader2 className="w-12 h-12 animate-spin text-royal-400 mb-4" />
-        <h1 className="text-xl font-bold">جاري تشغيل النظام...</h1>
+        <Loader2 className="w-12 h-12 animate-spin text-royal-400 mb-4" /><h1 className="text-xl font-bold">جاري تشغيل النظام...</h1>
       </div>
     );
   }
@@ -185,70 +144,28 @@ function App() {
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans" dir="rtl">
-      <Sidebar 
-        currentView={currentView} 
-        setCurrentView={setCurrentView} 
-        isOpen={isSidebarOpen}
-        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        companySettings={companySettings}
-        role={userRole}
-      />
-      
+      <Sidebar currentView={currentView} setCurrentView={setCurrentView} isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} companySettings={companySettings} role={userRole} />
       <main className="flex-1 p-4 lg:p-10 w-full">
         <header className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200 sticky top-0 bg-slate-50/80 backdrop-blur-md z-30 no-print">
           <div className="flex items-center gap-4">
-            <button 
-                onClick={() => setIsSidebarOpen(true)} 
-                className="p-3 bg-white border border-gray-200 rounded-xl hover:bg-royal-50 text-gray-700 hover:text-royal-600 transition-colors shadow-sm"
-                aria-label="القائمة الرئيسية"
-            >
-                <Menu className="w-6 h-6" />
-            </button>
+            <button onClick={() => setIsSidebarOpen(true)} className="p-3 bg-white border border-gray-200 rounded-xl hover:bg-royal-50 text-gray-700 hover:text-royal-600 transition-colors shadow-sm"><Menu className="w-6 h-6" /></button>
             <h1 className="text-xl md:text-2xl font-black text-gray-900 truncate">
-                {currentView === 'dashboard' && 'الصفحة الرئيسية'}
-                {currentView === 'products' && 'إدارة المنتجات'}
-                {currentView === 'checklist' && 'قائمة الفحص (Checklist)'}
-                {currentView === 'top-load' && 'فحص التوب لود (Top Load)'}
-                {currentView === 'weight-check' && 'فحص الأوزان (Weight Check)'}
-                {currentView === 'team' && 'فريق العمل'}
-                {currentView === 'kpi' && 'تحليلات الأداء'}
-                {currentView === 'lab-equipment' && 'أجهزة المعمل و SOP'}
-                {currentView === 'documents' && 'مركز الوثائق'}
-                {currentView === 'database' && 'قاعدة البيانات'}
-                {currentView === 'settings' && 'إعدادات المنشأة'}
-                {currentView === 'about' && 'حول النظام'}
+                {currentView === 'dashboard' && 'الصفحة الرئيسية'} {currentView === 'products' && 'إدارة المنتجات'} {currentView === 'checklist' && 'قائمة الفحص (Checklist)'}
+                {currentView === 'top-load' && 'فحص التوب لود (Top Load)'} {currentView === 'weight-check' && 'فحص الأوزان (Weight Check)'} {currentView === 'team' && 'فريق العمل'}
+                {currentView === 'kpi' && 'تحليلات الأداء'} {currentView === 'lab-equipment' && 'أجهزة المعمل و SOP'} {currentView === 'documents' && 'مركز الوثائق'}
+                {currentView === 'database' && 'قاعدة البيانات'} {currentView === 'settings' && 'إعدادات المنشأة'} {currentView === 'about' && 'حول النظام'}
             </h1>
           </div>
           <div className="flex items-center gap-3">
-             <div className="hidden md:flex flex-col items-end">
-                <span className="text-xs font-bold text-gray-400">حساب {userRole === 'admin' ? 'الإدارة' : 'زائر'}</span>
-                <span className="text-sm font-black text-gray-800">نشط الآن</span>
-             </div>
-             <button 
-                onClick={() => { setIsAuthenticated(false); setUserRole(null); }} 
-                className="w-10 h-10 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center border border-red-100"
-                title="تسجيل الخروج"
-             >
-                <LogOut className="w-5 h-5" />
-             </button>
+             <div className="hidden md:flex flex-col items-end"><span className="text-xs font-bold text-gray-400">حساب {userRole === 'admin' ? 'الإدارة' : 'زائر'}</span><span className="text-sm font-black text-gray-800">نشط الآن</span></div>
+             <button onClick={() => { setIsAuthenticated(false); setUserRole(null); }} className="w-10 h-10 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center border border-red-100" title="تسجيل الخروج"><LogOut className="w-5 h-5" /></button>
           </div>
         </header>
 
         <Suspense fallback={<LoadingFallback />}>
-            {currentView === 'dashboard' && (
-              <Dashboard 
-                products={products} 
-                kpiData={kpiData} 
-                handleGenerateReport={() => window.print()} 
-                navigate={setCurrentView}
-                reservedItems={reservedItems}
-                setReservedItems={setReservedItems}
-                role={userRole}
-                requestAuth={requestAuth}
-              />
-            )}
+            {currentView === 'dashboard' && <Dashboard products={products} kpiData={kpiData} handleGenerateReport={() => window.print()} navigate={setCurrentView} reservedItems={reservedItems} setReservedItems={setReservedItems} role={userRole} requestAuth={requestAuth} />}
             {currentView === 'products' && <Products products={products} setProducts={setProducts} requestAuth={requestAuth} role={userRole} />}
-            {currentView === 'checklist' && <Checklist entries={checklistEntries} setEntries={setChecklistEntries} machines={checklistMachines} setMachines={setChecklistMachines} requestAuth={requestAuth} role={userRole} shiftNames={checklistShiftNames} setShiftNames={setChecklistShiftNames} />}
+            {currentView === 'checklist' && <Checklist entries={checklistEntries} setEntries={setChecklistEntries} machines={checklistMachines} setMachines={setChecklistMachines} standards={topLoadStandards} machineProducts={topLoadMachineProducts} setMachineProducts={setTopLoadMachineProducts} requestAuth={requestAuth} role={userRole} shiftNames={checklistShiftNames} setShiftNames={setChecklistShiftNames} />}
             {currentView === 'top-load' && <TopLoad entries={topLoadEntries} setEntries={setTopLoadEntries} machines={checklistMachines} setMachines={setChecklistMachines} standards={topLoadStandards} setStandards={setTopLoadStandards} machineProducts={topLoadMachineProducts} setMachineProducts={setTopLoadMachineProducts} requestAuth={requestAuth} role={userRole} shiftNames={checklistShiftNames} setShiftNames={setChecklistShiftNames} />}
             {currentView === 'weight-check' && <WeightCheck entries={weightEntries} setEntries={setWeightEntries} machines={checklistMachines} standards={topLoadStandards} setStandards={setTopLoadStandards} machineProducts={topLoadMachineProducts} setMachineProducts={setTopLoadMachineProducts} requestAuth={requestAuth} role={userRole} shiftNames={checklistShiftNames} setShiftNames={setChecklistShiftNames} />}
             {currentView === 'team' && <Team team={team} setTeam={setTeam} requestAuth={requestAuth} role={userRole} />}
@@ -260,7 +177,6 @@ function App() {
             {currentView === 'about' && <About />}
         </Suspense>
       </main>
-
       <PasswordModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onConfirm={() => { pendingAction?.(); setPendingAction(null); }} />
     </div>
   );
