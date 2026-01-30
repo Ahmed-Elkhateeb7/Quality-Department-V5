@@ -67,28 +67,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
     hour: '2-digit', minute: '2-digit', second: '2-digit'
   });
 
+  // Updated handlers: Removing requestAuth to allow visitors access
   const handleOpenAddReserved = () => {
-    requestAuth(() => {
-      setReservedFormData({
-        productName: '', quantity: 0, defects: '', actionTaken: '',
-        date: new Date().toISOString().split('T')[0], status: 'pending',
-        shift: 'A', inspectorName: ''
-      });
-      setEditingReservedItem(null);
-      setIsReservedModalOpen(true);
+    setReservedFormData({
+      productName: '', quantity: 0, defects: '', actionTaken: '',
+      date: new Date().toISOString().split('T')[0], status: 'pending',
+      shift: 'A', inspectorName: ''
     });
+    setEditingReservedItem(null);
+    setIsReservedModalOpen(true);
   };
 
   const handleEditReserved = (item: ReservedItem) => {
-    requestAuth(() => {
-      setReservedFormData(item);
-      setEditingReservedItem(item);
-      setIsReservedModalOpen(true);
-    });
+    setReservedFormData(item);
+    setEditingReservedItem(item);
+    setIsReservedModalOpen(true);
   };
 
   const handleDeleteReserved = (id: string) => {
-    requestAuth(() => setReservedItems(prev => prev.filter(item => item.id !== id)));
+    setReservedItems(prev => prev.filter(item => item.id !== id));
   };
 
   const handleSaveReserved = (e: React.FormEvent) => {
@@ -235,7 +232,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
       </motion.div>
 
-      {/* Reserved Area (Quarantine) Section */}
+      {/* Reserved Area (Quarantine) Section - UPDATED: Full access for everyone */}
       <motion.div variants={itemVariants} className="bg-white rounded-[3rem] shadow-xl border border-rose-100 overflow-hidden relative group">
          <div className="absolute top-0 right-0 w-48 h-48 bg-rose-50 rounded-bl-full -mr-20 -mt-20 opacity-40 group-hover:scale-110 transition-transform duration-700" />
          <div className="p-10 border-b border-rose-50 flex justify-between items-center relative z-10">
@@ -248,13 +245,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <p className="text-gray-400 text-sm mt-1 font-black">متابعة المنتجات المعيبة والإجراءات التصحيحية</p>
                 </div>
             </div>
-            {role === 'admin' ? (
-                 <button onClick={handleOpenAddReserved} className="flex items-center gap-3 px-8 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-xl shadow-rose-600/20 hover:bg-rose-700 transition-all active:scale-95">
-                    <PlusCircle className="w-5 h-5" /> إضافة محجوز جديد
-                 </button>
-            ) : (
-                <div className="flex items-center gap-3 px-6 py-3 bg-gray-100 text-gray-500 rounded-2xl text-xs font-black uppercase tracking-widest"><Lock className="w-4 h-4" /> العرض فقط</div>
-            )}
+            
+            <button onClick={handleOpenAddReserved} className="flex items-center gap-3 px-8 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-xl shadow-rose-600/20 hover:bg-rose-700 transition-all active:scale-95">
+                <PlusCircle className="w-5 h-5" /> إضافة محجوز جديد
+            </button>
          </div>
 
          <div className="overflow-x-auto p-6">
@@ -268,7 +262,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                          <th className="px-8 py-2">الإجراء المتخذ</th>
                          <th className="px-8 py-2">التاريخ</th>
                          <th className="px-8 py-2 text-center">الحالة</th>
-                         {role === 'admin' && <th className="px-8 py-2 text-center">تحكم</th>}
+                         <th className="px-8 py-2 text-center">تحكم</th>
                      </tr>
                  </thead>
                  <tbody>
@@ -299,14 +293,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                         {item.status === 'resolved' ? 'تمت المعالجة' : item.status === 'scrapped' ? 'إعدام' : 'قيد الانتظار'}
                                     </span>
                                  </td>
-                                 {role === 'admin' && (
-                                     <td className="px-8 py-6 rounded-l-[1.5rem] text-center border-y border-l border-gray-50">
-                                         <div className="flex items-center justify-center gap-2 opacity-0 group-hover/row:opacity-100 transition-all">
-                                             <button onClick={() => handleEditReserved(item)} className="p-2.5 bg-royal-50 text-royal-600 hover:bg-royal-600 hover:text-white rounded-xl transition-all shadow-sm"><Edit2 className="w-4 h-4" /></button>
-                                             <button onClick={() => handleDeleteReserved(item.id)} className="p-2.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl transition-all shadow-sm"><Trash2 className="w-4 h-4" /></button>
-                                         </div>
-                                     </td>
-                                 )}
+                                 <td className="px-8 py-6 rounded-l-[1.5rem] text-center border-y border-l border-gray-50">
+                                     <div className="flex items-center justify-center gap-2 opacity-0 group-hover/row:opacity-100 transition-all">
+                                         <button onClick={() => handleEditReserved(item)} className="p-2.5 bg-royal-50 text-royal-600 hover:bg-royal-600 hover:text-white rounded-xl transition-all shadow-sm"><Edit2 className="w-4 h-4" /></button>
+                                         <button onClick={() => handleDeleteReserved(item.id)} className="p-2.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl transition-all shadow-sm"><Trash2 className="w-4 h-4" /></button>
+                                     </div>
+                                 </td>
                              </tr>
                          ))
                      )}
