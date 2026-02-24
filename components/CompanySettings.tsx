@@ -254,6 +254,14 @@ export const CompanySettingsPanel: React.FC<CompanySettingsProps> = ({ settings,
                     <label className="text-sm font-black text-gray-700">البريد الإلكتروني</label>
                     <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none font-bold" />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-black text-gray-700">أرقام التواصل</label>
+                    <input value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-black text-gray-700">الموقع الإلكتروني</label>
+                    <input value={formData.website} onChange={(e) => setFormData({...formData, website: e.target.value})} className="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none font-bold" />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
