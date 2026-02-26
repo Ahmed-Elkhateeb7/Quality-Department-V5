@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
-import { ShieldCheck, ArrowRight, Lock, Fingerprint } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShieldCheck, ArrowRight, Lock, Fingerprint, Clock } from 'lucide-react';
 import { UserRole } from '../types';
 import { motion } from 'framer-motion';
+import localforage from 'localforage';
 
 interface LoginProps {
   onLogin: (role: UserRole) => void;
@@ -11,16 +12,44 @@ interface LoginProps {
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isChecking, setIsChecking] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === '305071') {
-      onLogin('admin');
-    } else if (password === '1') {
-      onLogin('user');
-    } else {
-      setError('كلمة المرور غير صحيحة');
-      setPassword('');
+    setIsChecking(true);
+    
+    try {
+      if (password === '305071') {
+        onLogin('admin');
+      } else if (password === '1') {
+        onLogin('user');
+      } else if (password === '0000') {
+        // Demo User Logic
+        const demoStartDate = await localforage.getItem<number>('tqm_demo_start_date');
+        const now = Date.now();
+        const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
+
+        if (!demoStartDate) {
+          // First time logging in as demo
+          await localforage.setItem('tqm_demo_start_date', now);
+          onLogin('demo');
+        } else {
+          const elapsed = now - demoStartDate;
+          if (elapsed > twoDaysInMs) {
+            setError('انتهت الفترة التجريبية للمستخدم التجريبي (يومين)');
+            setPassword('');
+          } else {
+            onLogin('demo');
+          }
+        }
+      } else {
+        setError('كلمة المرور غير صحيحة');
+        setPassword('');
+      }
+    } catch (err) {
+      setError('خطأ في التحقق من البيانات');
+    } finally {
+      setIsChecking(false);
     }
   };
 
@@ -90,10 +119,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 <div className="space-y-6">
                     <button 
                         type="submit"
-                        className="w-full py-6 bg-gradient-to-l from-royal-700 to-royal-600 text-white rounded-3xl font-black text-xl hover:from-royal-600 hover:to-royal-500 transition-all shadow-[0_20px_40px_-10px_rgba(30,64,175,0.4)] active:scale-95 flex items-center justify-center gap-4 group"
+                        disabled={isChecking}
+                        className="w-full py-6 bg-gradient-to-l from-royal-700 to-royal-600 text-white rounded-3xl font-black text-xl hover:from-royal-600 hover:to-royal-500 transition-all shadow-[0_20px_40px_-10px_rgba(30,64,175,0.4)] active:scale-95 flex items-center justify-center gap-4 group disabled:opacity-50"
                     >
-                        تسجيل الدخول للنظام
-                        <ArrowRight className="w-6 h-6 group-hover:-translate-x-2 transition-transform" />
+                        {isChecking ? 'جاري التحقق...' : 'تسجيل الدخول للنظام'}
+                        {!isChecking && <ArrowRight className="w-6 h-6 group-hover:-translate-x-2 transition-transform" />}
                     </button>
                     
                     <div className="flex items-center justify-center gap-8 pt-4">

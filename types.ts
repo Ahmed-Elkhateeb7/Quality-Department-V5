@@ -1,6 +1,6 @@
 
 export type PageView = 'dashboard' | 'products' | 'team' | 'kpi' | 'lab-equipment' | 'documents' | 'database' | 'about' | 'settings' | 'checklist' | 'top-load' | 'weight-check';
-export type UserRole = 'admin' | 'user';
+export type UserRole = 'admin' | 'user' | 'demo';
 
 export interface Product {
   id: string;
@@ -21,6 +21,12 @@ export interface ReservedItem {
   status: 'pending' | 'resolved' | 'scrapped';
   shift: 'A' | 'B' | 'C'; // Added Shift
   inspectorName: string; // Added Inspector Name
+}
+
+export interface DefectCode {
+  code: string;
+  label: string;
+  color: string;
 }
 
 export interface ChecklistEntry {

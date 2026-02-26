@@ -20,6 +20,7 @@ interface DatabaseProps {
     topLoadStandards?: any[];
     topLoadMachineProducts?: any;
     weightEntries?: any[];
+    defectCodes?: any[];
   };
   onImport: (fullData: any) => void;
   onReset: () => void;
